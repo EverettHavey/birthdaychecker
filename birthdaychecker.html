@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Checker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #fce38a, #f38181);
+            color: #4a4a4a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #e84a5f;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #5d5d5d;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.25rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        input[type="date"] {
+            padding: 10px;
+            border: 2px solid #f38181;
+            border-radius: 10px;
+            font-size: 1rem;
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="date"]:focus {
+            outline: none;
+            border-color: #e84a5f;
+            box-shadow: 0 0 8px rgba(232, 74, 95, 0.5);
+        }
+
+        .btn {
+            background-color: #5a5a5a;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+
+        .btn:hover {
+            background-color: #3b3b3b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-celebrate {
+            background-color: #e84a5f;
+            box-shadow: 0 4px 6px rgba(232, 74, 95, 0.3);
+        }
+
+        .btn-celebrate:hover {
+            background-color: #d13a4d;
+        }
+
+        .message-box {
+            color: #d13a4d;
+            font-weight: 700;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+
+        /* Confetti Effect */
+        .confetti {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .confetti div {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #e84a5f;
+            opacity: 0;
+            animation: confetti-fall 3s ease-out forwards;
+            animation-delay: var(--delay);
+            border-radius: 50%;
+        }
+
+        .confetti div:nth-child(2n) { background-color: #fce38a; }
+        .confetti div:nth-child(3n) { background-color: #95e1d3; }
+        .confetti div:nth-child(4n) { background-color: #5d5d5d; }
+        .confetti div:nth-child(5n) { width: 8px; height: 12px; }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="confetti" id="confetti-container"></div>
+
+    <div class="container" id="main-container">
+        <!-- Content will be dynamically loaded here -->
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainContainer = document.getElementById('main-container');
+
+            // Function to get the current date in the user's local time zone
+            const getTodayInUserTimeZone = () => {
+                const today = new Date();
+                const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                const options = {
+                    timeZone: userTimeZone,
+                    month: 'numeric',
+                    day: 'numeric',
+                    year: 'numeric'
+                };
+                return new Date(today.toLocaleDateString('en-US', options));
+            };
+
+            // Function to render the input page
+            const renderInputPage = () => {
+                mainContainer.innerHTML = `
+                    <img src="https://placehold.co/400x200/fce38a/f38181?text=Your+Birthday" alt="Birthday Cake" class="w-full max-w-xs mx-auto mb-6 rounded-xl">
+                    <h1 class="text-3xl lg:text-4xl mb-4 text-[#e84a5f]">When's Your Birthday?</h1>
+                    <p class="mb-6 text-lg">Enter your date of birth to see a special message!</p>
+                    <input type="date" id="dobInput" class="w-full lg:w-3/4 mx-auto block mb-4 p-3 border-2 border-[#f38181] rounded-xl text-center">
+                    <button id="submitBtn" class="btn btn-celebrate w-full lg:w-auto">Check Date</button>
+                    <p id="errorMessage" class="message-box text-sm"></p>
+                `;
+
+                // Add event listener to the submit button
+                document.getElementById('submitBtn').addEventListener('click', () => {
+                    const dobInput = document.getElementById('dobInput');
+                    const errorMessage = document.getElementById('errorMessage');
+                    const birthdayString = dobInput.value;
+
+                    if (!birthdayString) {
+                        errorMessage.textContent = 'Please select your birthday.';
+                        return;
+                    }
+
+                    errorMessage.textContent = '';
+
+                    const dobParts = birthdayString.split('-');
+                    const dobYear = parseInt(dobParts[0], 10);
+                    const dobMonth = parseInt(dobParts[1], 10) - 1;
+                    const dobDay = parseInt(dobParts[2], 10);
+                    
+                    const dob = new Date(dobYear, dobMonth, dobDay);
+                    const today = new Date();
+                    
+                    if (dob.getMonth() === today.getMonth() && dob.getDate() === today.getDate()) {
+                        localStorage.setItem('birthday', birthdayString);
+                        renderBirthdayPage();
+                    } else {
+                        localStorage.setItem('birthday', birthdayString);
+                        renderComebackPage();
+                    }
+                });
+            };
+
+            // Function to render the "Happy Birthday" page
+            const renderBirthdayPage = () => {
+                const birthday = localStorage.getItem('birthday');
+                const dobParts = birthday.split('-');
+                const dobYear = parseInt(dobParts[0], 10);
+                const dobMonth = parseInt(dobParts[1], 10) - 1;
+                const dobDay = parseInt(dobParts[2], 10);
+                const dob = new Date(dobYear, dobMonth, dobDay);
+                
+                const month = dob.toLocaleString('default', { month: 'long' });
+                const day = dob.getDate();
+
+                mainContainer.innerHTML = `
+                    <img src="https://placehold.co/400x200/95e1d3/ffffff?text=Happy+Birthday!" alt="Happy Birthday Balloons" class="w-full max-w-xs mx-auto mb-6 rounded-xl">
+                    <h1 class="text-4xl lg:text-5xl mb-4 text-[#e84a5f]">🎉 Happy Birthday! 🎉</h1>
+                    <p class="text-lg lg:text-2xl mb-6">Hope your day is filled with joy, laughter, and everything you wished for. You're awesome!</p>
+                    <p class="text-lg lg:text-xl font-bold mb-8">Come back next year on ${month} ${day}!</p>
+                    <button id="backBtn" class="btn btn-celebrate">Start Over</button>
+                `;
+
+                document.getElementById('backBtn').addEventListener('click', () => {
+                    localStorage.removeItem('birthday');
+                    renderInputPage();
+                });
+
+                triggerConfetti();
+            };
+
+            // Function to render the "Come Back" page
+            const renderComebackPage = () => {
+                const birthday = localStorage.getItem('birthday');
+                const dobParts = birthday.split('-');
+                const dobYear = parseInt(dobParts[0], 10);
+                const dobMonth = parseInt(dobParts[1], 10) - 1;
+                const dobDay = parseInt(dobParts[2], 10);
+                const dob = new Date(dobYear, dobMonth, dobDay);
+                
+                const today = new Date();
+                
+                let nextBirthday = new Date(today.getFullYear(), dob.getMonth(), dob.getDate());
+                if (nextBirthday < today) {
+                    nextBirthday.setFullYear(today.getFullYear() + 1);
+                }
+
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const nextBirthdayString = nextBirthday.toLocaleDateString('en-US', options);
+
+                mainContainer.innerHTML = `
+                    <img src="https://placehold.co/400x200/5d5d5d/ffffff?text=Come+Back+Soon" alt="Calendar Placeholder" class="w-full max-w-xs mx-auto mb-6 rounded-xl">
+                    <h2 class="text-3xl lg:text-4xl mb-4 text-[#e84a5f]">Oops, not today!</h2>
+                    <p class="text-lg lg:text-xl mb-6">Your birthday is not today, but don't worry, it's getting closer every day!</p>
+                    <p class="text-lg lg:text-xl font-bold mb-8">Please come back on:<br>${nextBirthdayString}</p>
+                    <button id="backBtn" class="btn">Start Over</button>
+                `;
+
+                document.getElementById('backBtn').addEventListener('click', () => {
+                    localStorage.removeItem('birthday');
+                    renderInputPage();
+                });
+            };
+
+            // Function to create and animate confetti
+            const triggerConfetti = () => {
+                const confettiContainer = document.getElementById('confetti-container');
+                confettiContainer.innerHTML = '';
+                for (let i = 0; i < 50; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.style.left = `${Math.random() * 100}vw`;
+                    confetti.style.animationDuration = `${2 + Math.random() * 3}s`;
+                    confetti.style.animationDelay = `${Math.random() * 2}s`;
+                    confettiContainer.appendChild(confetti);
+                }
+            };
+            
+            // Initial page render based on stored birthday
+            const storedBirthday = localStorage.getItem('birthday');
+            if (storedBirthday) {
+                const dobParts = storedBirthday.split('-');
+                const dobYear = parseInt(dobParts[0], 10);
+                const dobMonth = parseInt(dobParts[1], 10) - 1;
+                const dobDay = parseInt(dobParts[2], 10);
+
+                const dob = new Date(dobYear, dobMonth, dobDay);
+                const today = new Date();
+
+                if (dob.getMonth() === today.getMonth() && dob.getDate() === today.getDate()) {
+                    renderBirthdayPage();
+                } else {
+                    renderComebackPage();
+                }
+            } else {
+                renderInputPage();
+            }
+
+        });
+    </script>
+</body>
+</html>

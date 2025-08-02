@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Checker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles/style.css">
+</head>
+<body>
+
+    <div class="container" id="main-container">
+        <img src="https://placehold.co/400x200/fce38a/f38181?text=Your+Birthday" alt="Birthday Cake" class="w-full max-w-xs mx-auto mb-6 rounded-xl">
+        <h1 class="text-3xl lg:text-4xl mb-4 text-[#e84a5f]">When's Your Birthday?</h1>
+        <p class="mb-6 text-lg">Enter your date of birth to see a special message!</p>
+        <input type="date" id="dobInput" class="w-full lg:w-3/4 mx-auto block mb-4 p-3 border-2 border-[#f38181] rounded-xl text-center">
+        <button id="submitBtn" class="btn btn-celebrate w-full lg:w-auto">Check Date</button>
+        <p id="errorMessage" class="message-box text-sm"></p>
+    </div>
+
+    <script src="scripts/script.js"></script>
+</body>
+</html>
